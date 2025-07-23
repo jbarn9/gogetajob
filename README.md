@@ -1,27 +1,48 @@
-Création d'une extension Chrome comme support à la recherche d'emploi:
+🎯 Objectifs
 
--Firebase Auth
+Une extension Chrome destinée aux chercheurs d'emploi, permettant de :
 
--Récupère les sous-libellés dans le libellé "Candidatures" créés sur Gmail
+    Gérer et suivre ses candidatures facilement
 
--CRUD des sous-dossiers
+    Ajouter des entreprises en favoris
 
--Modification des statuts des candidatures (en attente, entretiens en cours, reçu, rejeté)
+    Organiser les relances via le calendrier
 
--Notifications emails reçus par les entreprises suivies
+    Suivre les échanges via Gmail/Outlook
 
--Gestion du calendrier des relances
+    (Plus tard) Créer un pont intelligent entre candidats et recruteurs
 
--Liste des entreprises favorites
+🚀 Fonctionnalités principales
 
--Notes et tags entreprises enregistrées
+    ✅ Ajout et gestion de candidatures (entreprise, poste, statut…)
 
+    🏷️ Favoris personnalisés d'entreprises
 
-Stack:
+    📅 Rappels de relance synchronisables avec Google Calendar
 
--JavaScript
+    📬 Détection d’emails d'entreprises (via Gmail/Outlook)
 
--Firebase Auth
+    🔐 Stockage sécurisé via Firebase Firestore
 
--API Google
+🛠️ Technologies utilisées
 
+Partie Techno
+Extension HTML / CSS / JavaScript (ES6 Modules)
+Backend BDD Firebase Firestore
+Auth (option) Firebase Authentication
+API Mail (WIP) Gmail API, Outlook Graph API
+
+💡 Contribuer
+
+Tu peux proposer des idées, ouvrir des issues ou contribuer :
+
+git checkout -b nouvelle-feature
+git commit -m "Ajoute une nouvelle feature"
+git push origin nouvelle-feature
+
+📬 Contact
+
+    Auteur : Julie Barenne
+    Mail : jbarenne@proton.me
+
+    LinkedIn : www.linkedin.com/in/julie-barenne-91998818a/
