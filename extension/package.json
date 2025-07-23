@@ -1,12 +1,17 @@
 {
   "devDependencies": {
     "copy-webpack-plugin": "^13.0.0",
+    "css-loader": "^7.1.2",
     "firebase": "^11.10.0",
     "html-webpack-plugin": "^5.6.3",
+    "style-loader": "^4.0.0",
     "webpack": "^5.100.0",
     "webpack-cli": "^6.0.1"
   },
   "scripts": {
     "release": "webpack --config webpack.config.js && zip -r dist.zip dist/*"
+  },
+  "dependencies": {
+    "http-server": "^14.1.1"
   }
 }

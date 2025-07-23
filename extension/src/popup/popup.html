@@ -1,15 +1,42 @@
 <!DOCTYPE html>
-<meta charset="UTF-8" />
-<html>
+<html lang="fr">
   <head>
-    <title>GoGetaJob - Authentification</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GoGetaJob</title>
   </head>
   <body>
-    <h1>Je t'accompagne dans la recherche d'un super job !</h1>
-    <p>Donne-moi ta main, y'a qu'à traverser la rue virtuelle... ;)</p>
-    <div id="userInfo"></div>
-    <button id="signInButton">S'autentifier</button>
-    <button id="signOutButton" style="display: none">Se déconnecter</button>
-    <script src="sidepanel.js"></script>
+    <div class="container">
+      <h1>GoGetaJob</h1>
+      <p>"Il suffit de traverser la rue virtuelle" ;)</p>
+
+      <div id="status" class="status"></div>
+
+      <!-- Interface non authentifiée -->
+      <div id="auth-section">
+        <button id="signInButton" class="btn btn-primary">
+          Se connecter avec Google
+        </button>
+      </div>
+
+      <!-- Interface authentifiée -->
+      <div id="user-section">
+        <div id="userInfo" class="user-info"><div id="userEmail"></div></div>
+
+        <div class="actions">
+          <button id="getLabelsBtn" class="btn btn-secondary">
+            Récupérer les libellés Gmail
+          </button>
+          <button id="getEmailsBtn" class="btn btn-secondary">
+            Récupérer les emails Gmail
+          </button>
+          <button id="signOutButton" class="btn btn-danger">
+            Se déconnecter
+          </button>
+        </div>
+
+        <div id="results" class="results-container"></div>
+      </div>
+    </div>
   </body>
 </html>

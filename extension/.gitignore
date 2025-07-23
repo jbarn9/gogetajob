@@ -1,4 +1,5 @@
 manifest.json
+firebaseConfig.js
 public/manifest.json
 dist/
 node_modules/
