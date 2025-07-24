@@ -68,6 +68,3 @@ node_modules/
 
 # dataconnect generated files
 .dataconnect
-
-# firebase config
-firebaseConfig.js
