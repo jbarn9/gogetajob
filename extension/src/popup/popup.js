@@ -9,9 +9,11 @@ document.addEventListener("DOMContentLoaded", function () {
   const getEmailsBtn = document.getElementById("getEmailsBtn");
   const resultsDiv = document.getElementById("results");
   const userEmail = document.getElementById("userEmail");
+  const API_URL = "https://evening-plateau-32510-8b2c133dbe66.herokuapp.com/";
 
   console.log("Popup chargé");
 
+  // if user, update profile
   function updateUI(user) {
     console.log(user ? user : "non connecté");
 
@@ -99,7 +101,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Button to get emails from gmail API
+  // Button to synchronize emails from gmail API
   if (getEmailsBtn) {
     getEmailsBtn.addEventListener("click", function () {
       if (resultsDiv) resultsDiv.innerHTML = "Récupération des emails...";
@@ -131,46 +133,63 @@ document.addEventListener("DOMContentLoaded", function () {
   function displayLabels(labels) {
     if (!resultsDiv) return;
 
+    // there is no labels inside candidatures directory
     if (!labels.labels || labels.labels.length === 0) {
-      resultsDiv.innerHTML = "<p>Aucun libellé trouvé</p>";
+      resultsDiv.innerHTML += "<p>Aucun libellé trouvé</p>";
       return;
     }
 
     // filter labels to get "applications" labels only
-    const candidaturesLabels = labels.labels.filter(
+
+    const allApplications = labels.labels.filter(
       (label) =>
         label.name && label.name.toLowerCase().includes("candidatures/")
     );
 
-    if (candidaturesLabels.length === 0) {
-      resultsDiv.innerHTML = "<p>Aucun libellé 'Candidatures' trouvé</p>";
-      return;
-    }
-    // HTML labels displayer
-    const labelsHTML = candidaturesLabels
-      .map(
-        (label) => `
-        <div class="label-item">
-        <h4>${label.name}</h4>
-        <p><strong>Messages:</strong> ${label.messagesTotal || 0}</p>
-        
-        </div>
-        `
-      )
-      .join("");
+    // fetch new labels inside candidatures dir
+    const newApplications = [];
+    fetch(API_URL)
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        allApplications.filter((labels) => {
+          data.map((items, index) => {
+            index++;
+            if (labels.id !== items.item.id) {
+              allApplications[index].new = 1;
+            }
+          });
+        });
+        if (allApplications.length === 0) {
+          resultsDiv.innerHTML +=
+            "<p>Aucun nouveau libellé 'Candidatures' trouvé</p>";
+          return;
+        }
+        console.log(allApplications);
 
-    // Save labels in Firebase storage
-    const emailCandidate = user.email;
-    candidaturesLabels.map((label) =>
-      saveLabels(label.id, label.name, label.messagesTotal, emailCandidate)
-    );
-    // Display HTML in resultDiv
-    resultsDiv.innerHTML = `
-      <h3>Entreprises ciblées (${candidaturesLabels.length})</h3>
-      <div class="labels-list">
-        ${labelsHTML}
-      </div>
-    `;
+        // HTML labels displayer
+        const labelsHTML = allApplications
+          .map(
+            (label) => `
+            <div class="label-item ">
+            ${label.new ? "<div class='new-label'>New!</div>" : ""}
+            <h4>${label.name}</h4>
+            <p><strong>Messages:</strong> ${label.messagesTotal || 0}</p>
+
+            </div>
+            `
+          )
+          .join("");
+        // add labels in HTML
+        resultsDiv.innerHTML = `
+            <h3>Entreprises ciblées (${allApplications.length})</h3>
+            <div class="labels-list" >
+              ${labelsHTML}
+            </div>
+            <button id="createLabel" class="btn btn-primary">Créer un dossier</button>
+          `;
+      });
   }
 
   // Display Google emails

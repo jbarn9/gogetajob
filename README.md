@@ -1,3 +1,5 @@
+Gogetajob
+
 🎯 Objectifs
 
 Une extension Chrome destinée aux chercheurs d'emploi, permettant de :
@@ -27,17 +29,25 @@ Une extension Chrome destinée aux chercheurs d'emploi, permettant de :
 🛠️ Technologies utilisées
 
 Partie Techno
+
 Extension HTML / CSS / JavaScript (ES6 Modules)
+
 Backend BDD Firebase Firestore
+
 Auth (option) Firebase Authentication
-API Mail (WIP) Gmail API, Outlook Graph API
+
+API Mail (WIP) Gmail API, Outlook Graph
+
+Heroku déploiement
 
 💡 Contribuer
 
 Tu peux proposer des idées, ouvrir des issues ou contribuer :
 
 git checkout -b nouvelle-feature
+
 git commit -m "Ajoute une nouvelle feature"
+
 git push origin nouvelle-feature
 
 📬 Contact
