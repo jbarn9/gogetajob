@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const resultsDiv = document.getElementById("results");
   const userEmail = document.getElementById("userEmail");
   const API_URL = "https://evening-plateau-32510-8b2c133dbe66.herokuapp.com/";
+  var iduser = null;
 
   console.log("Popup chargé");
 
@@ -140,56 +141,79 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // filter labels to get "applications" labels only
-
     const allApplications = labels.labels.filter(
       (label) =>
         label.name && label.name.toLowerCase().includes("candidatures/")
     );
 
     // fetch new labels inside candidatures dir
-    const newApplications = [];
-    fetch(API_URL)
-      .then((response) => {
-        return response.json();
-      })
-      .then((data) => {
-        allApplications.filter((labels) => {
-          data.map((items, index) => {
-            index++;
-            if (labels.id !== items.item.id) {
+    chrome.storage.local.get(["user"], function (result) {
+      // get user id
+      iduser = result.user.uid;
+
+      fetch(API_URL)
+        .then((response) => {
+          return response.json();
+        })
+        .then((data) => {
+          // get data id only to compare with allApplications ids
+          const idApp = data.map((app) => app.item.id);
+
+          allApplications.map((items, index) => {
+            // test if idApp include allapp id
+            if (!idApp.includes(items.id)) {
+              allApplications[index].iduser = iduser;
+              allApplications[index].messagesTotal = items.messagesTotal || 0;
               allApplications[index].new = 1;
+              console.log(allApplications[index]);
+              setTimeout(() => {
+                fetch(API_URL + "add", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify(allApplications[index]),
+                })
+                  .then((res) => res.json())
+                  .then((docRef) => {
+                    console.log("Document written with ID: ", docRef.id);
+                  })
+                  .catch((error) => {
+                    console.error("Error adding document: ", error);
+                  });
+              }, index * 200);
             }
           });
+
+          if (allApplications.length === 0) {
+            resultsDiv.innerHTML +=
+              "<p>Aucun nouveau libellé 'Candidatures' trouvé</p>";
+            return;
+          }
+
+          // HTML labels displayer
+          const labelsHTML = allApplications
+            .map(
+              (label) => `
+              <div class="label-item ">
+              ${label.new ? "<div class='new-label'>New!</div>" : ""}
+              <h4>${label.name}</h4>
+              <p><strong>Messages:</strong> ${label.messagesTotal || 0}</p>
+
+              </div>
+              `
+            )
+            .join("");
+          // add labels in HTML
+          resultsDiv.innerHTML = `
+              <h3>Entreprises ciblées (${allApplications.length})</h3>
+              <div class="labels-list" >
+                ${labelsHTML}
+              </div>
+              <button id="createLabel" class="btn btn-primary">Créer un dossier</button>
+            `;
         });
-        if (allApplications.length === 0) {
-          resultsDiv.innerHTML +=
-            "<p>Aucun nouveau libellé 'Candidatures' trouvé</p>";
-          return;
-        }
-        console.log(allApplications);
-
-        // HTML labels displayer
-        const labelsHTML = allApplications
-          .map(
-            (label) => `
-            <div class="label-item ">
-            ${label.new ? "<div class='new-label'>New!</div>" : ""}
-            <h4>${label.name}</h4>
-            <p><strong>Messages:</strong> ${label.messagesTotal || 0}</p>
-
-            </div>
-            `
-          )
-          .join("");
-        // add labels in HTML
-        resultsDiv.innerHTML = `
-            <h3>Entreprises ciblées (${allApplications.length})</h3>
-            <div class="labels-list" >
-              ${labelsHTML}
-            </div>
-            <button id="createLabel" class="btn btn-primary">Créer un dossier</button>
-          `;
-      });
+    });
   }
 
   // Display Google emails

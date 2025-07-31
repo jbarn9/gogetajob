@@ -35,6 +35,10 @@ h1 {
     text-shadow: 0 2px 4px rgba(202, 209, 237, 0.2);
     letter-spacing: -0.5px;
 }
+.sub-h1{
+    font-size: 14px;
+    line-height: -4px;
+}
 .subtitle{
     text-align: center;
     font-size: 14px;

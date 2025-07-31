@@ -5,7 +5,10 @@ const port = process.env.PORT || 3010;
 
 //create Express server and activate CORS
 const app = express();
+// activate CORS
 app.use(cors({ origin: true }));
+// read json in request
+app.use(express.json());
 
 //SDK Admin Firebase
 const serviceAccount = JSON.parse(process.env.FIREBASE_CREDENTIALS);
@@ -36,7 +39,7 @@ app.get("/read/:collection_name", async (req, res) => {
     return res.status(500).send(error);
   }
 });
-// get default items (applications)
+// Get default items (applications)
 app.get("/", async (req, res) => {
   try {
     let query = db.collection("applications");
@@ -55,6 +58,31 @@ app.get("/", async (req, res) => {
   } catch (error) {
     console.log(error);
     return res.status(500).send(error);
+  }
+});
+
+// Add an application to collection Applications
+app.post("/add", async (req, res) => {
+  try {
+    const application = req.body;
+    console.log("req body", application);
+
+    const docRef = await db.collection("applications").add({
+      id: application.id,
+      name: application.name,
+      messagesTotal: application.messagesTotal,
+      iduser: application.iduser,
+    });
+    res.status(200).json({
+      success: true,
+      message: "Candidature ajoutée",
+      id: docRef.id,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
   }
 });
 
