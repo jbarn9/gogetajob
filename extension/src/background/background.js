@@ -1,6 +1,7 @@
 //oauth2 auth
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "signIn") {
+    console.log("action");
     getAuthToken()
       .then((user) => {
         chrome.storage.local.set({ user: user }, () => {
@@ -8,7 +9,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         });
       })
       .catch((error) => {
-        console.error("Erreur d'authentification:", error);
+        console.error("Erreur d'authentification:", error.message);
         sendResponse({ error: error.message });
       });
     // Indicates we will send a response asynchronously
@@ -48,35 +49,43 @@ async function getAuthToken() {
         scopes: [
           "https://www.googleapis.com/auth/gmail.metadata",
           "https://www.googleapis.com/auth/gmail.labels",
+          "https://www.googleapis.com/auth/userinfo.profile",
+          "https://www.googleapis.com/auth/userinfo.email",
         ],
       },
-      (token) => {
+      async (token) => {
         if (chrome.runtime.lastError) {
           console.error("Erreur OAuth:", chrome.runtime.lastError);
           reject(chrome.runtime.lastError);
-        } else {
-          // Get user infos
-          chrome.identity.getProfileUserInfo((userInfo) => {
-            // Check if there are user informations
-            if (userInfo && userInfo.email) {
-              resolve({
-                email: userInfo.email,
-                displayName: userInfo.displayName || "Utilisateur Gmail",
-                accessToken: token,
-                uid: userInfo.id || "gmail-user-" + Date.now(),
-                profileImage: userInfo.pictureUrl || null,
-              });
-            } else {
-              // Fallback if there is no info about user
-              resolve({
-                email: "user@gmail.com",
-                displayName: "Utilisateur Gmail",
-                accessToken: token,
-                uid: "gmail-user-" + Date.now(),
-                profileImage: null,
-              });
+        }
+        try {
+          // Appel à l'API Google UserInfo pour récupérer email, nom, photo
+          const res = await fetch(
+            "https://www.googleapis.com/oauth2/v1/userinfo",
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
             }
+          );
+
+          if (!res.ok) {
+            throw new Error("Échec de récupération des infos utilisateur");
+          }
+
+          const data = await res.json();
+          console.log("data", data);
+
+          resolve({
+            email: data.email,
+            displayName: data.name || "Utilisateur",
+            accessToken: token,
+            uid: data.sub,
+            profileImage: data.picture || null,
           });
+        } catch (error) {
+          console.error("Erreur lors de l'appel à l'API UserInfo :", error);
+          reject(error);
         }
       }
     );

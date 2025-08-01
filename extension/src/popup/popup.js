@@ -38,6 +38,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Check if user is already connected
   chrome.storage.local.get(["user"], function (result) {
     updateUI(result.user);
+    iduser = result.user;
   });
   // event onclick sign in btn
   signInButton.addEventListener("click", function () {
@@ -53,6 +54,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (response && response.user) {
         updateUI(response.user);
+        // Fetch all labels from db with heroku
+        fetch(API_URL + iduser.uid)
+          .then((response) => {
+            return response.json();
+          })
+          .then((data) => {
+            const arrayOfItems = data.map((items) => items.item);
+            insertHtml(arrayOfItems);
+          });
       } else if (response && response.error) {
         console.error("Erreur d'authentification:", response.error);
         userInfo.textContent = `Erreur: ${response.error}`;
@@ -132,6 +142,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Display labels
   function displayLabels(labels) {
+    console.log("userid", iduser.uid);
+
     if (!resultsDiv) return;
 
     // there is no labels inside candidatures directory
@@ -147,54 +159,56 @@ document.addEventListener("DOMContentLoaded", function () {
     );
 
     // fetch new labels inside candidatures dir
-    chrome.storage.local.get(["user"], function (result) {
-      // get user id
-      iduser = result.user.uid;
+    fetch(API_URL + iduser.uid)
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        // get data id only to compare with allApplications ids
+        const idApp = data.map((app) => app.item.id);
 
-      fetch(API_URL)
-        .then((response) => {
-          return response.json();
-        })
-        .then((data) => {
-          // get data id only to compare with allApplications ids
-          const idApp = data.map((app) => app.item.id);
-
-          allApplications.map((items, index) => {
-            // test if idApp include allapp id
-            if (!idApp.includes(items.id)) {
-              allApplications[index].iduser = iduser;
-              allApplications[index].messagesTotal = items.messagesTotal || 0;
-              allApplications[index].new = 1;
-              console.log(allApplications[index]);
-              setTimeout(() => {
-                fetch(API_URL + "add", {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify(allApplications[index]),
+        allApplications.map((items, index) => {
+          // test if idApp include allapp id
+          if (!idApp.includes(items.id)) {
+            allApplications[index].iduser = iduser;
+            allApplications[index].messagesTotal = items.messagesTotal || 0;
+            allApplications[index].new = 1;
+            console.log(allApplications[index]);
+            setTimeout(() => {
+              fetch(API_URL + "add", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(allApplications[index]),
+              })
+                .then((res) => res.json())
+                .then((docRef) => {
+                  console.log("Document written with ID: ", docRef.id);
                 })
-                  .then((res) => res.json())
-                  .then((docRef) => {
-                    console.log("Document written with ID: ", docRef.id);
-                  })
-                  .catch((error) => {
-                    console.error("Error adding document: ", error);
-                  });
-              }, index * 200);
-            }
-          });
-
-          if (allApplications.length === 0) {
-            resultsDiv.innerHTML +=
-              "<p>Aucun nouveau libellé 'Candidatures' trouvé</p>";
-            return;
+                .catch((error) => {
+                  console.error("Error adding document: ", error);
+                });
+            }, index * 200);
           }
+        });
 
-          // HTML labels displayer
-          const labelsHTML = allApplications
-            .map(
-              (label) => `
+        if (allApplications.length === 0) {
+          resultsDiv.innerHTML +=
+            "<p>Aucun nouveau libellé 'Candidatures' trouvé</p>";
+          return;
+        }
+        insertHtml(allApplications);
+      });
+  }
+  // create the HTML
+  function insertHtml(arrayofapplications) {
+    console.log(arrayofapplications);
+
+    // HTML labels displayer
+    const labelsHTML = arrayofapplications
+      .map(
+        (label) => `
               <div class="label-item ">
               ${label.new ? "<div class='new-label'>New!</div>" : ""}
               <h4>${label.name}</h4>
@@ -202,20 +216,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
               </div>
               `
-            )
-            .join("");
-          // add labels in HTML
-          resultsDiv.innerHTML = `
-              <h3>Entreprises ciblées (${allApplications.length})</h3>
+      )
+      .join("");
+    // add labels in HTML
+    return (resultsDiv.innerHTML = `
+              <h3>Entreprises ciblées (${arrayofapplications.length})</h3>
               <div class="labels-list" >
                 ${labelsHTML}
               </div>
               <button id="createLabel" class="btn btn-primary">Créer un dossier</button>
-            `;
-        });
-    });
+            `);
   }
-
   // Display Google emails
   function displayEmails(emails) {
     if (!resultsDiv) return;

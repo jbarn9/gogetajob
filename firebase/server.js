@@ -19,20 +19,23 @@ admin.initializeApp({
 
 const db = admin.firestore();
 // get items by collection name
-app.get("/read/:collection_name", async (req, res) => {
+app.get("/read/:collection_name/:userid", async (req, res) => {
   try {
     let query = db.collection(req.params.collection_name);
     let response = [];
-    await query.get().then((querySnapShot) => {
-      let docs = querySnapShot.docs;
-      for (let doc of docs) {
-        const selectedItem = {
-          id: doc.id,
-          item: doc.data(),
-        };
-        response.push(selectedItem);
-      }
-    });
+    await query
+      .where("iduser", "==", req.params.userid)
+      .get()
+      .then((querySnapShot) => {
+        let docs = querySnapShot.docs;
+        for (let doc of docs) {
+          const selectedItem = {
+            id: doc.id,
+            item: doc.data(),
+          };
+          response.push(selectedItem);
+        }
+      });
     return res.status(200).send(response);
   } catch (error) {
     console.log(error);
@@ -40,20 +43,23 @@ app.get("/read/:collection_name", async (req, res) => {
   }
 });
 // Get default items (applications)
-app.get("/", async (req, res) => {
+app.get("/:userid", async (req, res) => {
   try {
     let query = db.collection("applications");
     let response = [];
-    await query.get().then((querySnapShot) => {
-      let docs = querySnapShot.docs;
-      for (let doc of docs) {
-        const selectedItem = {
-          id: doc.id,
-          item: doc.data(),
-        };
-        response.push(selectedItem);
-      }
-    });
+    await query
+      .where("iduser", "==", req.params.userid)
+      .get()
+      .then((querySnapShot) => {
+        let docs = querySnapShot.docs;
+        for (let doc of docs) {
+          const selectedItem = {
+            id: doc.id,
+            item: doc.data(),
+          };
+          response.push(selectedItem);
+        }
+      });
     return res.status(200).send(response);
   } catch (error) {
     console.log(error);
@@ -71,7 +77,7 @@ app.post("/add", async (req, res) => {
       id: application.id,
       name: application.name,
       messagesTotal: application.messagesTotal,
-      iduser: application.iduser,
+      iduser: application.iduser.uid,
     });
     res.status(200).json({
       success: true,
