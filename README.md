@@ -12,7 +12,11 @@ Une extension Chrome destinée aux chercheurs d'emploi, permettant de :
 
     Suivre les échanges via Gmail/Outlook
 
+    Critères de recherche personnalisés
+
     (Plus tard) Créer un pont intelligent entre candidats et recruteurs
+
+    (idée) IA d'appui à la recherche par entreprise, soutien supplémentaire à la recherche
 
 🚀 Fonctionnalités principales
 
@@ -30,13 +34,17 @@ Une extension Chrome destinée aux chercheurs d'emploi, permettant de :
 
 Partie Techno
 
-Extension HTML / CSS / JavaScript (ES6 Modules)
+Extension HTML / CSS / JavaScript (ES6 Modules) -
+
+(en cours) Vuejs pour le front-end
 
 Backend BDD Firebase Firestore
 
 Auth (option) Firebase Authentication
 
 API Mail (WIP) Gmail API, Outlook Graph
+
+Jenkins automatisation CI/CD
 
 Heroku déploiement
 
