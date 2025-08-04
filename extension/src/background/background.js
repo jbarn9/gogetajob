@@ -74,13 +74,15 @@ async function getAuthToken() {
           }
 
           const data = await res.json();
-          console.log("data", data);
+          console.log(data);
 
           resolve({
+            family_name: data.family_name,
+            given_name: data.given_name,
             email: data.email,
             displayName: data.name || "Utilisateur",
             accessToken: token,
-            uid: data.sub,
+            uid: data.id,
             profileImage: data.picture || null,
           });
         } catch (error) {

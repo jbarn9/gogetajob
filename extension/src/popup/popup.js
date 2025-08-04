@@ -10,7 +10,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const resultsDiv = document.getElementById("results");
   const userEmail = document.getElementById("userEmail");
   const API_URL = "https://evening-plateau-32510-8b2c133dbe66.herokuapp.com/";
-  var iduser = null;
+  let iduser = null;
+  let token = null;
 
   console.log("Popup chargé");
 
@@ -37,8 +38,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Check if user is already connected
   chrome.storage.local.get(["user"], function (result) {
+    iduser = result.user.uid;
+    token = result.user.accessToken;
     updateUI(result.user);
-    iduser = result.user;
   });
   // event onclick sign in btn
   signInButton.addEventListener("click", function () {
@@ -53,9 +55,13 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       if (response && response.user) {
-        updateUI(response.user);
         // Fetch all labels from db with heroku
-        fetch(API_URL + iduser.uid)
+        fetch(API_URL + iduser, {
+          method: "get",
+          headers: {
+            authorization: `Bearer ${token}`,
+          },
+        })
           .then((response) => {
             return response.json();
           })
@@ -142,7 +148,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Display labels
   function displayLabels(labels) {
-    console.log("userid", iduser.uid);
+    console.log("iduser", iduser);
 
     if (!resultsDiv) return;
 
@@ -159,7 +165,12 @@ document.addEventListener("DOMContentLoaded", function () {
     );
 
     // fetch new labels inside candidatures dir
-    fetch(API_URL + iduser.uid)
+    fetch(API_URL + iduser, {
+      method: "get",
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+    })
       .then((response) => {
         return response.json();
       })
@@ -179,6 +190,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
+                  authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify(allApplications[index]),
               })

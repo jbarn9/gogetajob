@@ -1,8 +1,0 @@
-# Define services
-version: "20"
-services:
-  web:
-    build: .
-    command: npm run start
-    ports:
-      - "3000:3000"
