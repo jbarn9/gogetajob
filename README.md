@@ -46,7 +46,9 @@ API Mail (WIP) Gmail API, Outlook Graph
 
 Jenkins automatisation CI/CD
 
-Heroku déploiement
+Jest tests
+
+Heroku hébergement
 
 💡 Contribuer
 
