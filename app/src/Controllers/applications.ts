@@ -9,7 +9,7 @@ const db = dbConnect.getDb();
 
 // get items by collection name
 router.get(
-  "/read/:collection_name/:userid",
+  "/read/:collection_name/me",
   authentificationToken,
   async (req, res) => {
     try {
@@ -36,7 +36,7 @@ router.get(
   }
 );
 // Get default items (applications)
-router.get("/:userid", authentificationToken, async (req, res) => {
+router.get("/me", authentificationToken, async (req, res) => {
   try {
     let query = db.collection("applications");
     let response: Array<{ id: string; item: any }> = [];
@@ -84,3 +84,5 @@ router.post("/add", authentificationToken, async (req, res) => {
     });
   }
 });
+
+export default router;
